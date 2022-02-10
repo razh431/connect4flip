@@ -61,6 +61,10 @@ def winning_move(board, piece):
                 return True
 
 
+# def flip(board):
+#     board =
+
+
 def draw_board(board):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
@@ -78,6 +82,17 @@ def draw_board(board):
                 pygame.draw.circle(screen, YELLOW, (int(
                     c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
     pygame.display.update()
+
+
+def gravity(board):
+    for col in range(COLUMN_COUNT):
+        row = get_next_open_row(board, col)
+        zeroes_cols = np.zeros(ROW_COUNT - row)
+
+        flattened = board[:, col].flatten()
+        new_col = np.append(zeroes_cols, flattened)[:6]
+        board[:, col] = new_col
+    return np.flipud(board)
 
 
 board = create_board()
@@ -122,6 +137,27 @@ while not game_over:
                 pygame.draw.circle(
                     screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
         pygame.display.update()
+
+        if event.type == pygame.KEYDOWN:
+            pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+            board = gravity(board)
+            if turn == 0:
+                if winning_move(board, 1):
+                    label = myfont.render("Player 1 wins!!", 1, RED)
+                    screen.blit(label, (40, 10))
+                    game_over = True
+            else:
+                if winning_move(board, 2):
+                    label = myfont.render("Player 1 wins!!", 1, RED)
+                    screen.blit(label, (40, 10))
+                    game_over = True
+
+            turn = (turn + 1) % 2
+            print_board(board)
+            draw_board(board)
+
+            if game_over:
+                pygame.time.wait(3000)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
